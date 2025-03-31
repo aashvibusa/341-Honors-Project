@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "audio_processing.h"
-#include "vocoder_state.h"
+#include "vocoder.h"
 
 int main(int argc, char* argv[]) {
     parseArguments(argc, argv); 
