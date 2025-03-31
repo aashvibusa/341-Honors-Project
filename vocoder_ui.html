@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vocoder Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h2>Vocoder Control</h2>
+    <button onclick="sendCommand('none')">No Effect</button>
+    <button onclick="sendCommand('low')">Low</button>
+    <button onclick="sendCommand('wobble')">Wobble</button>
+    <button onclick="sendCommand('robot')">Robot</button>
+    <button onclick="sendCommand('echo')">Echo</button>
+    
+    <h3>Audio Stream</h3>
+    <audio controls id="audioPlayer"></audio>
+
+    <script>
+        function sendCommand(effect) {
+            fetch('http://your-pi-ip:5000', {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: effect
+            }).then(response => console.log('Effect changed to:', effect));
+        }
+
+        document.getElementById('audioPlayer').src = 'http://your-pi-ip:5001';
+    </script>
+</body>
+</html>
