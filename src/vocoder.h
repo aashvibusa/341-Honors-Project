@@ -1,5 +1,12 @@
+// vocoder.h
+
 #ifndef VOCODER_STATE_H
 #define VOCODER_STATE_H
+
+#define FRAMES_PER_BUFFER 512
+#define SAMPLE_RATE 44100
+#define CHANNELS 2
+#define CARRIER_FREQ 440.0f
 
 typedef struct {
     float phase;
