@@ -27,15 +27,6 @@ static void* network_server(void* arg) {
         char buf[32] = {0};
         recv(client_fd, buf, sizeof(buf), 0);
 
-        // VocoderState* v = get_vocoder();
-        printf("%s\n", buf);
-        printf("%s\n", "low");
-        printf("%d\n", strcmp(buf, "low"));
-        printf("%d\n", strcmp(buf, "low\n"));
-        printf("%d\n", strcmp(buf, "wobble"));
-        printf("%d\n", strcmp(buf, "robot"));
-        printf("%d\n", strcmp(buf, "echo"));
-
         if (strcmp(buf, "low\n") == 0) {
             g_current_effect = EFFECT_LOW;
         } else if (strcmp(buf, "wobble\n") == 0) {
