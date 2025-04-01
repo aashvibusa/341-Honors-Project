@@ -27,21 +27,28 @@ static void* network_server(void* arg) {
         char buf[32] = {0};
         recv(client_fd, buf, sizeof(buf), 0);
 
-        VocoderState* v = get_vocoder();
+        // VocoderState* v = get_vocoder();
+        printf("%s\n", buf);
+        printf("%s\n", "low");
+        printf("%d\n", strcmp(buf, "low"));
+        printf("%d\n", strcmp(buf, "low\n"));
+        printf("%d\n", strcmp(buf, "wobble"));
+        printf("%d\n", strcmp(buf, "robot"));
+        printf("%d\n", strcmp(buf, "echo"));
 
-        if (strcmp(buf, "low") == 0) {
+        if (strcmp(buf, "low\n") == 0) {
             g_current_effect = EFFECT_LOW;
-        } else if (strcmp(buf, "wobble") == 0) {
+        } else if (strcmp(buf, "wobble\n") == 0) {
             g_current_effect = EFFECT_WOBBLE;
-        } else if (strcmp(buf, "robot") == 0) {
+        } else if (strcmp(buf, "robot\n") == 0) {
             g_current_effect = EFFECT_ROBOT;
-        } else if (strcmp(buf, "echo") == 0) {
+        } else if (strcmp(buf, "echo\n") == 0) {
             g_current_effect = EFFECT_ECHO;
         } else {
             g_current_effect = EFFECT_NONE;
         }
 
-        printf("Effect changed to: %s\n", buf);
+        printf("Effect changed to: %d\n", g_current_effect);
         close(client_fd);
     }
     return NULL;

@@ -30,7 +30,7 @@ int audio_callback(const void* input, void* output,
                in[0], out[0], v->effect_type);
     }*/
     
-    switch (v->effect_type) {
+    switch (g_current_effect) {
         case EFFECT_LOW:
             process_low_effect(in, out, frame_count);
             break;
