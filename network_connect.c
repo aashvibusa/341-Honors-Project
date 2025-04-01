@@ -13,8 +13,8 @@
 #define SAMPLE_RATE 44100
 #define FRAMES_PER_BUFFER 128
 #define NUM_CHANNELS 1
-#define TCP_PORT 5000
-#define AUDIO_PORT 5001
+#define TCP_PORT 9999
+#define AUDIO_PORT 9998
 
 typedef enum {
     EFFECT_NONE,
@@ -62,7 +62,7 @@ void* network_server(void* arg) {
     return NULL;
 }
 
-void* audio_streaming_server(void* arg) {
+/* void* audio_streaming_server(void* arg) {
     int server_fd, client_fd;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -84,6 +84,46 @@ void* audio_streaming_server(void* arg) {
 
         while (1) {
             memset(buffer, 0, sizeof(buffer));
+            if (send(client_fd, buffer, sizeof(buffer), 0) <= 0) break;
+        }
+        close(client_fd);
+        printf("Client disconnected.\n");
+    }
+    return NULL;
+} */
+
+void* audio_streaming_server(void* arg) {
+    int server_fd, client_fd;
+    struct sockaddr_in server_addr, client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    int16_t buffer[FRAMES_PER_BUFFER];
+    
+    // Audio generation variables
+    float phase = 0.0f;
+    float phase_increment = 440.0f * 2.0f * M_PI / SAMPLE_RATE;  // 440Hz sine wave
+
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(AUDIO_PORT);
+    
+    bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
+    listen(server_fd, 5);
+
+    printf("Audio streaming on port %d...\n", AUDIO_PORT);
+    
+    while (1) {
+        client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
+        printf("Client connected for audio streaming.\n");
+
+        while (1) {
+            // Fill buffer with a 440Hz sine wave (16-bit PCM)
+            for (int i = 0; i < FRAMES_PER_BUFFER; i++) {
+                buffer[i] = (int16_t)(32767.0f * sin(phase));  // Scale to 16-bit range
+                phase += phase_increment;
+                if (phase > 2.0f * M_PI) phase -= 2.0f * M_PI;  // Keep phase in bounds
+            }
+
             if (send(client_fd, buffer, sizeof(buffer), 0) <= 0) break;
         }
         close(client_fd);
