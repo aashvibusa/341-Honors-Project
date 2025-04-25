@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
     int fd = open("error.log", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     
     if(fd == -1){
-        perrr("unable to write");
+        perror("unable to write");
         exit(2);
     }
 
