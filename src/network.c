@@ -39,7 +39,8 @@ static void* network_server(void* arg) {
             g_current_effect = EFFECT_NONE;
         }
 
-        printf("Effect changed to: %d\n", g_current_effect);
+        printf("Effect changed to: %s\n", effect_to_string(g_current_effect));
+        
         close(client_fd);
     }
     return NULL;
