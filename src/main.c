@@ -2,6 +2,9 @@
 #include "network.h"
 #include "vocoder.h"
 #include <stdio.h>
+#include <fcntl.h>   
+#include <unistd.h>  
+#include <stdlib.h>   
 
 int main() {
     initialize_vocoder();
