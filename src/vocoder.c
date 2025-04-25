@@ -12,11 +12,11 @@ VocoderState* get_vocoder() {
 
 const char* effect_to_string(EffectType effect) {
     switch (effect) {
-        case EFFECT_NONE:   return "EFFECT_NONE";
-        case EFFECT_LOW:    return "EFFECT_LOW";
-        case EFFECT_WOBBLE: return "EFFECT_WOBBLE";
-        case EFFECT_ROBOT:  return "EFFECT_ROBOT";
-        case EFFECT_ECHO:   return "EFFECT_ECHO";
+        case EFFECT_NONE:   return "None";
+        case EFFECT_LOW:    return "Low";
+        case EFFECT_WOBBLE: return "Wobble";
+        case EFFECT_ROBOT:  return "Robot";
+        case EFFECT_ECHO:   return "Echo";
         default:            return "Unknown Effect";
     }
 }
