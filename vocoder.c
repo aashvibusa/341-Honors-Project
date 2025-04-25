@@ -219,6 +219,16 @@ static void parse_arguments(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
     initialize_vocoder();
 
+    int fd = open("error.log", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    
+    if(fd == -1){
+        perrr("unable to write");
+        exit(2);
+    }
+
+    dup2(fd, STDERR_FILENO);
+    close(fd);   
+    
     PaError err = Pa_Initialize();
     if (err != paNoError) {
         printf("PortAudio initialization error: %s\n", Pa_GetErrorText(err));
