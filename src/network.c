@@ -1,6 +1,9 @@
+// network.c - Sender
+
 #include "network.h"
-#include "effects.h"  // Assuming you have effect functions like process_low_effect, etc.
+#include "effects.h"
 #include "constants.h"
+#include "vocoder.h" // <-- For effect_to_string
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
@@ -9,18 +12,47 @@
 #include <alsa/asoundlib.h>
 
 #define AUDIO_PORT 5555
+#define CONTROL_PORT 5556
 #define AUDIO_BUFFER_SIZE 1024
 #define SAMPLE_RATE 44100
 #define CHANNELS 1
 
 volatile int g_current_effect = EFFECT_NONE;
 
-// ========== Audio Streaming Client (Sender) ==========
+// Thread: Send effect name changes to receiver
+void* send_effect_control(void* arg) {
+    const char* ip = (const char*)arg;
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in ctrl_addr = {
+        .sin_family = AF_INET,
+        .sin_port = htons(CONTROL_PORT),
+        .sin_addr.s_addr = inet_addr(ip)
+    };
 
-static void* audio_stream_client(void* arg) {
+    if (connect(sock, (struct sockaddr*)&ctrl_addr, sizeof(ctrl_addr)) < 0) {
+        perror("Control socket connect failed");
+        return NULL;
+    }
+
+    int last_effect = -1;
+
+    while (1) {
+        if (g_current_effect != last_effect) {
+            const char* msg = effect_to_string(g_current_effect);
+            send(sock, msg, strlen(msg) + 1, 0);
+            last_effect = g_current_effect;
+        }
+        sleep(1);
+    }
+
+    close(sock);
+    return NULL;
+}
+
+// Thread: Audio capture and sending
+void* audio_stream_client(void* arg) {
     const char* ip = (const char*)arg;
 
-    // Create the socket to send audio data
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in server_addr = {
         .sin_family = AF_INET,
@@ -28,13 +60,11 @@ static void* audio_stream_client(void* arg) {
         .sin_addr.s_addr = inet_addr(ip)
     };
 
-    // Connect to the receiver server
     if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("connect failed");
+        perror("Audio socket connect failed");
         return NULL;
     }
 
-    // Set up ALSA capture
     snd_pcm_t* capture_handle;
     snd_pcm_open(&capture_handle, "default", SND_PCM_STREAM_CAPTURE, 0);
     snd_pcm_set_params(capture_handle,
@@ -50,15 +80,11 @@ static void* audio_stream_client(void* arg) {
     float output_f[AUDIO_BUFFER_SIZE / 2];
 
     while (1) {
-        // Read audio from the capture device
         snd_pcm_readi(capture_handle, raw_buffer, AUDIO_BUFFER_SIZE / 2);
 
-        // Convert raw audio to float
-        for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++) {
+        for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++)
             input_f[i] = raw_buffer[i] / 32768.0f;
-        }
 
-        // Apply effect to the audio stream based on the current effect
         switch (g_current_effect) {
             case EFFECT_LOW:
                 process_low_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
@@ -73,14 +99,11 @@ static void* audio_stream_client(void* arg) {
                 process_echo_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
                 break;
             default:
-                // No effect, pass the audio unchanged
-                for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++) {
+                for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++)
                     output_f[i] = input_f[i];
-                }
                 break;
         }
 
-        // Convert processed audio back to raw PCM format
         for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++) {
             float sample = output_f[i];
             if (sample > 1.0f) sample = 1.0f;
@@ -88,23 +111,13 @@ static void* audio_stream_client(void* arg) {
             raw_buffer[i] = (int16_t)(sample * 32767.0f);
         }
 
-        // Send the processed audio to the server
         send(sock, raw_buffer, AUDIO_BUFFER_SIZE, 0);
     }
 
-    // Close ALSA and socket when done
     snd_pcm_close(capture_handle);
     close(sock);
     return NULL;
 }
-
-void start_audio_streamer(const char* receiver_ip) {
-    pthread_t audio_thread;
-    pthread_create(&audio_thread, NULL, audio_stream_client, (void*)receiver_ip);
-    pthread_detach(audio_thread);
-}
-
-// ========== Main Function ==========
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -114,15 +127,32 @@ int main(int argc, char *argv[]) {
 
     const char* receiver_ip = argv[1];
 
-    // Start the audio streaming to the receiver IP
-    start_audio_streamer(receiver_ip);
+    pthread_t audio_thread, control_thread;
+    pthread_create(&audio_thread, NULL, audio_stream_client, (void*)receiver_ip);
+    pthread_create(&control_thread, NULL, send_effect_control, (void*)receiver_ip);
 
-    // Keep the program running (e.g., for continuous audio streaming)
-    // You can implement a control loop or another way to keep the program alive as needed
-    printf("Audio streaming started to %s...\n", receiver_ip);
+    pthread_detach(audio_thread);
+    pthread_detach(control_thread);
+
+    printf("Streaming to %s\n", receiver_ip);
+    printf("Available effects: none, low, wobble, robot, echo\n");
+
+    char input[32];
     while (1) {
-        // Placeholder to keep the program running
-        // You can handle other tasks or just let it stream continuously
+        printf("Effect > ");
+        fgets(input, sizeof(input), stdin);
+        input[strcspn(input, "\n")] = 0;
+
+        if (strcmp(input, "low") == 0)
+            g_current_effect = EFFECT_LOW;
+        else if (strcmp(input, "wobble") == 0)
+            g_current_effect = EFFECT_WOBBLE;
+        else if (strcmp(input, "robot") == 0)
+            g_current_effect = EFFECT_ROBOT;
+        else if (strcmp(input, "echo") == 0)
+            g_current_effect = EFFECT_ECHO;
+        else
+            g_current_effect = EFFECT_NONE;
     }
 
     return 0;
