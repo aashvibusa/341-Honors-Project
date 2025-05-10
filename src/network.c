@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     pthread_detach(control_thread);
 
     printf("Streaming to %s\n", receiver_ip);
-    printf("Available effects: none, low, high, wobble, robot, echo\n");
+    printf("Available effects: none, low, high, pitch <pitch value>, wobble, robot, echo\n");
 
     char input[32];
     while (1) {
