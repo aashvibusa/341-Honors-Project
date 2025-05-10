@@ -89,6 +89,9 @@ void* audio_stream_client(void* arg) {
             case EFFECT_LOW:
                 process_low_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
                 break;
+            case EFFECT_HIGH:
+                process_high_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
+                break;
             case EFFECT_WOBBLE:
                 process_wobble_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
                 break;

@@ -6,6 +6,7 @@
 typedef enum {
     EFFECT_NONE,
     EFFECT_LOW,
+    EFFECT_HIGH,
     EFFECT_WOBBLE,
     EFFECT_ROBOT,
     EFFECT_ECHO

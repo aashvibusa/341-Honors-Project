@@ -14,6 +14,7 @@ const char* effect_to_string(EffectType effect) {
     switch (effect) {
         case EFFECT_NONE:   return "None";
         case EFFECT_LOW:    return "Low";
+        case EFFECT_HIGH:   return "High";
         case EFFECT_WOBBLE: return "Wobble";
         case EFFECT_ROBOT:  return "Robot";
         case EFFECT_ECHO:   return "Echo";
