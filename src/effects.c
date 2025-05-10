@@ -19,6 +19,30 @@ static float wobble_phase = 0.0f;
 static float echo_buffer[ECHO_BUFFER_SIZE];
 static int echo_pos = 0;
 
+
+void process_pitch_effect(const float* input, float* output, unsigned long frame_count, float pitch_shift) {
+    
+    for (unsigned i = 0; i < frame_count; i++) {
+        pitch_buffer[pitch_pos] = input[i];
+        pitch_pos = (pitch_pos + 1) % PITCH_BUFFER_SIZE;
+    }
+    
+    for (unsigned i = 0; i < frame_count; i++) {
+        float pos = read_pos;
+        while (pos < 0) pos += PITCH_BUFFER_SIZE;
+        while (pos >= PITCH_BUFFER_SIZE) pos -= PITCH_BUFFER_SIZE;
+        
+        int pos1 = (int)pos;
+        int pos2 = (pos1 + 1) % PITCH_BUFFER_SIZE;
+        float frac = pos - pos1;
+        
+        output[i] = pitch_buffer[pos1] * (1.0f - frac) + pitch_buffer[pos2] * frac;
+        read_pos += pitch_shift;
+    }
+    
+    if (read_pos >= PITCH_BUFFER_SIZE) read_pos -= PITCH_BUFFER_SIZE;
+}
+
 void process_low_effect(const float* input, float* output, unsigned long frame_count) {
     const float pitch_shift = 0.6f;
     

@@ -18,6 +18,7 @@
 #define CHANNELS 1
 
 volatile int g_current_effect = EFFECT_NONE;
+float current_pitch = 1.0f;
 
 // Thread: Send effect name changes to receiver
 void* send_effect_control(void* arg) {
@@ -87,10 +88,13 @@ void* audio_stream_client(void* arg) {
 
         switch (g_current_effect) {
             case EFFECT_LOW:
-                process_low_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
+                process_pitch_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2, 0.6f);
                 break;
             case EFFECT_HIGH:
-                process_high_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
+                 process_pitch_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2, 1.4f);
+                break;
+            case EFFECT_PITCH:
+                process_pitch_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2, current_pitch);
                 break;
             case EFFECT_WOBBLE:
                 process_wobble_effect(input_f, output_f, AUDIO_BUFFER_SIZE / 2);
@@ -138,21 +142,30 @@ int main(int argc, char *argv[]) {
     pthread_detach(control_thread);
 
     printf("Streaming to %s\n", receiver_ip);
-    printf("Available effects: none, low, wobble, robot, echo\n");
+    printf("Available effects: none, low, high, wobble, robot, echo\n");
 
     char input[32];
     while (1) {
         printf("Effect > ");
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;
+        char effect_str[32];
+        float val;
+        int matched = sscanf(input, "%s %f", effect_str, val);
 
-        if (strcmp(input, "low") == 0)
+        if(matched > 1 && strcmp(effect_str, "pitch") == 0){
+            g_current_effect = EFFECT_PITCH;
+            current_pitch = val;
+        }
+        else if (strcmp(effect_str, "low") == 0)
             g_current_effect = EFFECT_LOW;
-        else if (strcmp(input, "wobble") == 0)
+        else if (strcmp(effect_str, "high") == 0)
+            g_current_effect = EFFECT_HIGH;
+        else if (strcmp(effect_str, "wobble") == 0)
             g_current_effect = EFFECT_WOBBLE;
-        else if (strcmp(input, "robot") == 0)
+        else if (strcmp(effect_str, "robot") == 0)
             g_current_effect = EFFECT_ROBOT;
-        else if (strcmp(input, "echo") == 0)
+        else if (strcmp(effect_str, "echo") == 0)
             g_current_effect = EFFECT_ECHO;
         else
             g_current_effect = EFFECT_NONE;

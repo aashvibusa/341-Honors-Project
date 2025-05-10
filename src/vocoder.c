@@ -18,6 +18,7 @@ const char* effect_to_string(EffectType effect) {
         case EFFECT_WOBBLE: return "Wobble";
         case EFFECT_ROBOT:  return "Robot";
         case EFFECT_ECHO:   return "Echo";
+        case EFFECT_PITCH:  return "Pitch Change";
         default:            return "Unknown Effect";
     }
 }
