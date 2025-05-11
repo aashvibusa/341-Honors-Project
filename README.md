@@ -84,7 +84,7 @@ gcc receiver.c -o receiver -lpthread -lasound -lm
 
 #### Sender -
 ```
-gcc network.c vocoder.c effects.c -o sender -lpthread -lasound -lm
+gcc network.c vocoder.c effects/effects.c -o sender -lpthread -lasound -lm
 ```
 
 This will build the main vocoder application and receiver/sender components.
