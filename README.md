@@ -91,15 +91,6 @@ This will build the main vocoder application and receiver/sender components.
 
 ## Usage
 
-### Standalone Mode
-
-Run the vocoder application:
-```
-./vocoder
-```
-
-This starts the vocoder with local audio processing and a TCP server for remote control.
-
 ### Network Mode
 
 #### Receiver (Audio Output Device):
