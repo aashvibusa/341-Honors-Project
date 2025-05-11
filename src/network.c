@@ -1,7 +1,7 @@
 #include "network.h"
 #include "effects.h"
 #include "constants.h"
-#include "vocoder.h" // ai assist for import issues w/ dependencies
+#include "vocoder.h"
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
@@ -15,10 +15,10 @@
 #define SAMPLE_RATE 44100
 #define CHANNELS 1
 
-volatile int g_current_effect = EFFECT_NONE;
+volatile int g_current_effect = EFFECT_NONE; // volatile to allow for changes between threads
 float current_pitch = 1.0f;
 
-// Thread: Send effect name changes to receiver
+// send effect changes for client/receiver to display
 void* send_effect_control(void* arg) {
     const char* ip = (const char*)arg;
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -29,14 +29,14 @@ void* send_effect_control(void* arg) {
         .sin_addr.s_addr = inet_addr(ip)
     };
 
-    if (connect(sock, (struct sockaddr*)&ctrl_addr, sizeof(ctrl_addr)) < 0) {
+    if (connect(sock, (struct sockaddr*) &ctrl_addr, sizeof(ctrl_addr)) < 0) {
         perror("Control socket connect failed");
         return NULL;
     }
 
     int last_effect = -1;
 
-    // Check for effect changes and send updates
+    // check for effect changes and send updates
     while (1) {
         if (g_current_effect != last_effect) {
             const char* msg = effect_to_string(g_current_effect);
@@ -50,7 +50,7 @@ void* send_effect_control(void* arg) {
     return NULL;
 }
 
-// Thread: Capture audio and send it with applied effect
+// capture audio and send to client with applied effects
 void* audio_stream_client(void* arg) {
     const char* ip = (const char*)arg;
 
@@ -68,7 +68,7 @@ void* audio_stream_client(void* arg) {
 
     snd_pcm_t* capture_handle;
 
-    // Open default ALSA capture device
+    // open default ALSA capture device
     snd_pcm_open(&capture_handle, "default", SND_PCM_STREAM_CAPTURE, 0);
     snd_pcm_set_params(capture_handle,
         SND_PCM_FORMAT_S16_LE,
@@ -83,11 +83,10 @@ void* audio_stream_client(void* arg) {
     float output_f[AUDIO_BUFFER_SIZE / 2];
 
     while (1) {
-       
-        snd_pcm_readi(capture_handle, raw_buffer, AUDIO_BUFFER_SIZE / 2); // Read audio input
+        snd_pcm_readi(capture_handle, raw_buffer, AUDIO_BUFFER_SIZE / 2); // read audio input
 
         for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++)
-            input_f[i] = raw_buffer[i] / 32768.0f; //to float
+            input_f[i] = raw_buffer[i] / 32768.0f; //convert to float
 
         switch (g_current_effect) {
             case EFFECT_LOW:
@@ -114,7 +113,7 @@ void* audio_stream_client(void* arg) {
                 break;
         }
 
-        // Convert output to int16_t and clip to valid range
+        // converts output to int16_t and clips to a valid range
         for (int i = 0; i < AUDIO_BUFFER_SIZE / 2; i++) {
             float sample = output_f[i];
             if (sample > 1.0f) sample = 1.0f;
@@ -122,7 +121,7 @@ void* audio_stream_client(void* arg) {
             raw_buffer[i] = (int16_t)(sample * 32767.0f);
         }
 
-        // Send processed audio to receiver
+        // sends the processed audio to receiver
         send(sock, raw_buffer, AUDIO_BUFFER_SIZE, 0);
     }
 
@@ -139,6 +138,7 @@ int main(int argc, char *argv[]) {
 
     const char* receiver_ip = argv[1];
 
+    // create thread for audio and thread for control
     pthread_t audio_thread, control_thread;
     pthread_create(&audio_thread, NULL, audio_stream_client, (void*)receiver_ip);
     pthread_create(&control_thread, NULL, send_effect_control, (void*)receiver_ip);
@@ -158,6 +158,7 @@ int main(int argc, char *argv[]) {
         float val;
         int matched = sscanf(input, "%s %f", effect_str, &val);
 
+        // match effects using strcmp
         if(matched > 1 && strcmp(effect_str, "pitch") == 0){
             g_current_effect = EFFECT_PITCH;
             current_pitch = val;
