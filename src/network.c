@@ -1,5 +1,5 @@
 #include "network.h"
-#include "effects.h"
+#include "effects/effects.h"
 #include "constants.h"
 #include "vocoder.h"
 #include <arpa/inet.h>
@@ -136,8 +136,21 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    //stderr error direction to error.log
+    int fd = open("error.log", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fd == -1){
+        perror("unable to write");
+        exit(2);
+    }
+
+    dup2(fd, STDERR_FILENO);
+    close(fd);
+
     const char* receiver_ip = argv[1];
 
+    // create thread for audio and thread for control
+    
     // create thread for audio and thread for control
     pthread_t audio_thread, control_thread;
     pthread_create(&audio_thread, NULL, audio_stream_client, (void*)receiver_ip);

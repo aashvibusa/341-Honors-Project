@@ -2,8 +2,7 @@
 #define NETWORK_H
 
 #include <pthread.h>
-#include "audio_io.h"
-#include "constants.h"
+#include "effects/constants.h"
 
 void start_network_servers();
 

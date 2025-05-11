@@ -1,7 +1,7 @@
 #ifndef VOCODER_H
 #define VOCODER_H
 
-#include "constants.h"
+#include "effects/constants.h"
 
 typedef enum {
     EFFECT_NONE,
