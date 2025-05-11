@@ -1,6 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -std=c11
-LDFLAGS = -lm -lpthread -lasound -lportaudio
+PORTAUDIO_DIR = C:/Users/ronit/Downloads/portaudio
+
+CFLAGS = -Wall -Wextra -O2 -std=c11 -Isrc -I$(PORTAUDIO_DIR)/include
+LDFLAGS = -lm -lpthread -lasound -L$(PORTAUDIO_DIR)/lib -lportaudio
 
 SRC_DIR = src
 SRCS = $(wildcard $(SRC_DIR)/*.c)

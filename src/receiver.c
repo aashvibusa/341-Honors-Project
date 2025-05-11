@@ -1,5 +1,5 @@
 #include "network.h"
-#include "constants.h"
+#include "effects/constants.h"
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
