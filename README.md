@@ -1,23 +1,138 @@
-# Realtime Vocoder with Network-Controlled Effects
+# Realtime Networked Vocoder 
 
-This project is a realtime vocoder audio processor built with PortAudio, supporting dynamic effect switching via TCP commands.
+## Project Overview
 
-## Features
+This project is a real-time vocoder audio processing system that enables voice transformation through multiple audio effects. It features a client-server architecture for networked audio transmission and remote control of effects. The system can process microphone input in real-time, apply various voice modulation effects, and stream the processed audio either locally or through a network.
 
-- Real-time audio processing with customizable effects:
-  - **Low Effect**: Uses a circular buffer and linear interpolation to read from delayed positions in the buffer at a slower rate (leading to pitch shifting).
-  - **Wobble Effect**: Applies a slow sine wave modulation to the input signal's amplitude for a tremolo-adjacent sound.
-  - **Robot Effect**: Multiplies the input signal with a square wave carrier for a robotic, monotone voice.
-  - **Echo Effect**: Implements a circular delay buffer with feedback, mixing delayed samples with the live input to produce echoes.
-- TCP server to receive effect switch commands from external clients
+### Key Features
 
-## Requirements
+- **Multiple Audio Effects**:
+  - **Low Effect**: Pitch shifting down for a deeper voice
+  - **High Effect**: Pitch shifting up for a higher voice
+  - **Pitch Effect**: Customizable pitch shifting with variable rate
+  - **Wobble Effect**: Amplitude modulation for a tremolo-like sound
+  - **Robot Effect**: Carrier wave modulation for a mechanical voice
+  - **Echo Effect**: Delay with feedback for echo/reverb effects
 
-- GCC or Clang
-- PortAudio
-- POSIX system (Linux/macOS)
+- **Network Capabilities**:
+  - Stream processed audio over TCP/IP
+  - Remote control of effects via network commands
+  - Separate control and audio streaming channels
 
-Install dependencies (example for Ubuntu):
+## Team Contributions
 
+**Team Member Contributions:**
+
+- **Aashvi**: 
+  -TCP networking + connections
+  -Audio buffer handling
+  -Raspberry Pi set-up
+  -Effects creation
+  -Sender/Receiver architecture
+  
+- **Ronit**: 
+  -Makefile creation
+  -Input parsing and processing
+  -Error redirection and logging
+  -Effects creation
+  -Sender/Receiver architecture
+
+
+- **Sneha**: 
+  -TCP networking + connections 
+  -Audio buffer handling
+  -Multithreading
+  -Effects creation
+  -Sender/Receiver architecture
+  
+## Installation
+
+### Prerequisites
+
+- GCC compiler (or compatible C compiler)
+- POSIX-compatible operating system (Linux/macOS)
+- PortAudio library
+- ALSA audio library (for Linux)
+- pthread support
+
+### Dependencies Installation
+
+#### Ubuntu/Debian:
 ```bash
-sudo apt install libportaudio2 libportaudio-dev
+sudo apt update
+sudo apt install build-essential libportaudio2 libportaudio-dev libasound2-dev
+```
+
+#### macOS:
+```bash
+brew install portaudio
+```
+
+### Building the Project
+
+1. Clone the repository:
+```
+git clone https://github.com/your-username/realtime-networked-vocoder.git
+cd realtime-networked-vocoder
+```
+
+2. Compile the project:
+
+#### Receiver -
+```
+gcc receiver.c -o receiver -lpthread -lasound -lm
+```
+
+#### Sender -
+```
+gcc network.c vocoder.c effects.c -o sender -lpthread -lasound -lm
+```
+
+This will build the main vocoder application and receiver/sender components.
+
+## Usage
+
+### Standalone Mode
+
+Run the vocoder application:
+```
+./vocoder
+```
+
+This starts the vocoder with local audio processing and a TCP server for remote control.
+
+### Network Mode
+
+#### Receiver (Audio Output Device):
+```
+./receiver
+```
+
+Start this on the machine where you want audio playback.
+
+#### Sender (Audio Input Device):
+```
+./src/network <receiver_ip>
+```
+
+Start this on the machine with the microphone input, replacing `<receiver_ip>` with the IP address of the receiver machine.
+
+### Effect Control
+
+When running the sender, you'll see a command prompt where you can type effect names:
+
+```
+Effect > none    # No effect
+Effect > low     # Lower pitch effect
+Effect > high    # Higher pitch effect
+Effect > pitch 1.5  # Custom pitch
+Effect > wobble  # Amplitude modulation effect
+Effect > robot   # Robotic voice effect
+Effect > echo    # Echo effect
+```
+
+## Future Improvements
+
+- Reduce latency
+- Implement security features
+- Add graphical user interface with real-time visualization of audio waves
