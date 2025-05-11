@@ -1,6 +1,6 @@
 #include "network.h"
 #include "effects/effects.h"
-#include "constants.h"
+#include "effects/constants.h"
 #include "vocoder.h"
 #include <arpa/inet.h>
 #include <unistd.h>

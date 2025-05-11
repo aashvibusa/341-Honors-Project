@@ -1,6 +1,6 @@
 // audio processing
 #include "effects.h"
-#include "vocoder.h"
+#include "../vocoder.h"
 #include <math.h>
 #include <string.h>
 
