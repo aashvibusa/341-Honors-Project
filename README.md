@@ -79,12 +79,7 @@ cd realtime-networked-vocoder
 
 #### Receiver -
 ```
-gcc receiver.c -o receiver -lpthread -lasound -lm
-```
-
-#### Sender -
-```
-gcc network.c vocoder.c effects/effects.c -o sender -lpthread -lasound -lm
+make
 ```
 
 This will build the main vocoder application and receiver/sender components.
