@@ -7,21 +7,14 @@
 #define ECHO_BUFFER_SIZE (SAMPLE_RATE * 2)
 #define PITCH_BUFFER_SIZE 4096
 
-// Low effect variables
 static float pitch_buffer[PITCH_BUFFER_SIZE];
 static int pitch_pos = 0;
 static float read_pos = 0.0f;
-
-// Wobble effect variables
 static float wobble_phase = 0.0f;
-
-// Echo effect variables
 static float echo_buffer[ECHO_BUFFER_SIZE];
 static int echo_pos = 0;
 
-
 void process_pitch_effect(const float* input, float* output, unsigned long frame_count, float pitch_shift) {
-    
     for (unsigned i = 0; i < frame_count; i++) {
         pitch_buffer[pitch_pos] = input[i];
         pitch_pos = (pitch_pos + 1) % PITCH_BUFFER_SIZE;
@@ -67,7 +60,6 @@ void process_robot_effect(const float* input, float* output, unsigned long frame
         if (phase >= PI_2) phase -= PI_2;
     }
 }
-
 
 void process_echo_effect(const float* input, float* output, unsigned long frame_count) {
     int delay_samples = SAMPLE_RATE / 2;
