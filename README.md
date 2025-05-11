@@ -24,16 +24,16 @@ This project is a real-time vocoder audio processing system that enables voice t
 **Team Member Contributions:**
 
 - **Aashvi**: 
-  -TCP networking + connections
-  -Sender/Receiver architecture
-  -Raspberry Pi set-up
-  -Effect creation (pitch change/robot)
+  - TCP networking + connections
+  - Sender/Receiver architecture
+  - Raspberry Pi set-up
+  - Effect creation (pitch change/robot)
 
 - **Ronit**: 
-  -Makefile creation / repo organization
-  -Input parsing and processing
-  -Audio streaming and buffer handling
-  -Error handling and logging
+  - Makefile creation / repo organization
+  - Input parsing and processing
+  - Audio streaming and buffer handling
+  - Error handling and logging
 
 - **Sneha**: 
   -TCP networking + connections 
