@@ -36,10 +36,10 @@ This project is a real-time vocoder audio processing system that enables voice t
   - Error handling and logging
 
 - **Sneha**: 
-  -TCP networking + connections 
-  -Audio buffer handling
-  -Multithreading
-  -Effects creation (wobble/echo)
+  - TCP networking + connections 
+  - Audio buffer handling
+  - Multithreading
+  - Effects creation (wobble/echo)
 
 ## Installation
 
