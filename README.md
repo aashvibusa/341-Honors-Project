@@ -111,7 +111,7 @@ Start this on the machine where you want audio playback.
 
 #### Sender (Audio Input Device):
 ```
-./src/network <receiver_ip>
+./sender <receiver_ip>
 ```
 
 Start this on the machine with the microphone input, replacing `<receiver_ip>` with the IP address of the receiver machine.
