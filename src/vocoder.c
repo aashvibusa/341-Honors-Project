@@ -1,3 +1,4 @@
+// parsing and functionality helper methods
 #include "vocoder.h"
 
 static VocoderState vocoder_instance = {
@@ -24,7 +25,6 @@ const char* effect_to_string(EffectType effect) {
 }
 
 void initialize_vocoder() {
-    // Re-initialize if needed
     VocoderState* v = get_vocoder();
     v->effect_type = EFFECT_NONE;
     v->wobble_phase = 0.0f;

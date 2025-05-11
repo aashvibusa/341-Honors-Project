@@ -1,9 +1,7 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
-
 #include "constants.h"
 #include <stdio.h>
-
 
 void process_low_effect(const float* input, float* output, unsigned long frame_count);
 void process_high_effect(const float* input, float* output, unsigned long frame_count);

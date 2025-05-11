@@ -5,7 +5,6 @@
 #include "vocoder.h"
 
 #define SAMPLE_RATE 44100
-// #define FRAMES_PER_BUFFER 256  // Increased for better stability
 #define NUM_CHANNELS 1
 
 int init_audio();

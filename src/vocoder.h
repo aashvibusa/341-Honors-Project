@@ -19,7 +19,6 @@ typedef struct {
     float wobble_speed;
 } VocoderState;
 
-// Global access function
 VocoderState* get_vocoder();
 void initialize_vocoder();
 const char* effect_to_string(EffectType effect);
