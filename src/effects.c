@@ -43,55 +43,6 @@ void process_pitch_effect(const float* input, float* output, unsigned long frame
     if (read_pos >= PITCH_BUFFER_SIZE) read_pos -= PITCH_BUFFER_SIZE;
 }
 
-void process_low_effect(const float* input, float* output, unsigned long frame_count) {
-    const float pitch_shift = 0.6f;
-    
-    for (unsigned i = 0; i < frame_count; i++) {
-        pitch_buffer[pitch_pos] = input[i];
-        pitch_pos = (pitch_pos + 1) % PITCH_BUFFER_SIZE;
-    }
-    
-    for (unsigned i = 0; i < frame_count; i++) {
-        float pos = read_pos;
-        while (pos < 0) pos += PITCH_BUFFER_SIZE;
-        while (pos >= PITCH_BUFFER_SIZE) pos -= PITCH_BUFFER_SIZE;
-        
-        int pos1 = (int)pos;
-        int pos2 = (pos1 + 1) % PITCH_BUFFER_SIZE;
-        float frac = pos - pos1;
-        
-        output[i] = pitch_buffer[pos1] * (1.0f - frac) + pitch_buffer[pos2] * frac;
-        read_pos += pitch_shift;
-    }
-    
-    if (read_pos >= PITCH_BUFFER_SIZE) read_pos -= PITCH_BUFFER_SIZE;
-}
-
-
-void process_high_effect(const float* input, float* output, unsigned long frame_count) {
-    const float pitch_shift = 1.4f;
-    
-    for (unsigned i = 0; i < frame_count; i++) {
-        pitch_buffer[pitch_pos] = input[i];
-        pitch_pos = (pitch_pos + 1) % PITCH_BUFFER_SIZE;
-    }
-    
-    for (unsigned i = 0; i < frame_count; i++) {
-        float pos = read_pos;
-        while (pos < 0) pos += PITCH_BUFFER_SIZE;
-        while (pos >= PITCH_BUFFER_SIZE) pos -= PITCH_BUFFER_SIZE;
-        
-        int pos1 = (int)pos;
-        int pos2 = (pos1 + 1) % PITCH_BUFFER_SIZE;
-        float frac = pos - pos1;
-        
-        output[i] = pitch_buffer[pos1] * (1.0f - frac) + pitch_buffer[pos2] * frac;
-        read_pos += pitch_shift;
-    }
-    
-    if (read_pos >= PITCH_BUFFER_SIZE) read_pos -= PITCH_BUFFER_SIZE;
-}
-
 void process_wobble_effect(const float* input, float* output, unsigned long frame_count) {
     VocoderState* v = get_vocoder();
     float rate = v->wobble_speed;
@@ -106,15 +57,17 @@ void process_wobble_effect(const float* input, float* output, unsigned long fram
 
 void process_robot_effect(const float* input, float* output, unsigned long frame_count) {
     static float phase = 0.0f;
-    float carrier_freq = 80.0f;
-    
+    const float carrier_freq = 80.0f;
+    const float phase_inc = PI_2 * carrier_freq / SAMPLE_RATE;
+
     for (unsigned i = 0; i < frame_count; i++) {
-        float carrier = sinf(phase) > 0 ? 1.0f : -1.0f;
-        output[i] = carrier * fabsf(input[i]);
-        phase += PI_2 * carrier_freq / SAMPLE_RATE;
-        if (phase > PI_2) phase -= PI_2;
+        float carrier = sinf(phase);
+        output[i] = input[i] * carrier;  
+        phase += phase_inc;
+        if (phase >= PI_2) phase -= PI_2;
     }
 }
+
 
 void process_echo_effect(const float* input, float* output, unsigned long frame_count) {
     int delay_samples = SAMPLE_RATE / 2;
