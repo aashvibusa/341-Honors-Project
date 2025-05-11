@@ -1,4 +1,4 @@
-# Realtime Networked Vocoder 
+# Realtime Networked TCP Vocoder 
 
 ## Project Overview
 
