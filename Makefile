@@ -1,23 +1,10 @@
-CC = gcc
-PORTAUDIO_DIR = C:/Users/ronit/Downloads/portaudio
+all: sender receiver
 
-CFLAGS = -Wall -Wextra -O2 -std=c11 -Isrc -I$(PORTAUDIO_DIR)/include
-LDFLAGS = -lm -lpthread -lasound -L$(PORTAUDIO_DIR)/lib -lportaudio
+sender:
+	gcc src/network.c src/vocoder.c src/effects/effects.c -o sender -lpthread -lasound -lm
 
-SRC_DIR = src
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(SRCS:.c=.o)
-TARGET = vocoder
-
-all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+receiver:
+	gcc src/receiver.c -o receiver -lpthread -lasound -lm
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all clean
+	rm -f sender receiver
