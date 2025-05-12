@@ -118,3 +118,7 @@ Effect > echo    # Echo effect
 - Reduce latency
 - Implement security features
 - Add graphical user interface with real-time visualization of audio waves
+
+## Acknowledgements
+
+We would like to thank the 341 Honors course staff, especially our mentor Mark Kraay for guiding us and helping us idealize our vision for our project. 
